@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Card, Badge, inr, coverOf } from './ui';
-import { FiClock, FiArrowRight, FiStar } from 'react-icons/fi';
+import { FiClock, FiArrowRight, FiStar, FiMapPin } from 'react-icons/fi';
 import { FaHotel, FaUtensils } from 'react-icons/fa6';
 
 // One card, used wherever a package is shown in a grid/list.
@@ -36,6 +36,17 @@ export default function PackageCard({ pkg }) {
           <h3 className="line-clamp-1 font-semibold text-slate-900 group-hover:text-brand-700">
             {pkg.title}
           </h3>
+
+          {(pkg.from || pkg.to) && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+              <FiMapPin className="shrink-0 text-brand-500" />
+              <span className="line-clamp-1">
+                {pkg.from}
+                {pkg.from && pkg.to && <FiArrowRight className="mx-1 inline text-slate-400" />}
+                {pkg.to}
+              </span>
+            </p>
+          )}
 
           <div className="mt-2 flex flex-wrap gap-1.5">
             {days > 0 && (
