@@ -26,7 +26,7 @@ export async function bookPackage({ user, packageId, couponCode }) {
       key: order.key_id,
       amount: order.amount,
       currency: order.currency,
-      name: 'Devbhoomi Trips',
+      name: 'Northern Harrier',
       description: order.package_name,
       order_id: order.razorpay_order_id,
       prefill: {

@@ -9,7 +9,7 @@ import Dashboard from './pages/admin/Dashboard';
 import ManagePackages from './pages/admin/ManagePackages';
 import ManageCoupons from './pages/admin/ManageCoupons';
 import ProtectedRoute from './routes/ProtectedRoute';
-import { FaMountainSun } from 'react-icons/fa6';
+import Logo from './components/Logo';
 import { FiShield, FiPhone, FiMail } from 'react-icons/fi';
 
 export default function App() {
@@ -42,16 +42,16 @@ function Footer() {
   return (
     <footer className="border-t border-slate-100 bg-white">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:px-6">
-        <p className="flex items-center gap-2">
-          <FaMountainSun className="text-brand-600" />
-          Devbhoomi Trips — Uttarakhand tour packages, stay &amp; meals included.
-        </p>
+        <div className="flex flex-col items-center gap-1 sm:items-start">
+          <Logo size="text-base" icon="text-xl" />
+          <p className="text-xs text-slate-400">Uttarakhand tour packages, stay &amp; meals included.</p>
+        </div>
         <div className="flex items-center gap-4 text-xs text-slate-400">
           <span className="inline-flex items-center gap-1"><FiShield /> Secure payments</span>
           <span className="inline-flex items-center gap-1"><FiPhone /> 24×7 support</span>
-          <span className="inline-flex items-center gap-1"><FiMail /> hello@devbhoomitrips.in</span>
+          <span className="inline-flex items-center gap-1"><FiMail /> hello@northernharrier.in</span>
         </div>
-        <p>© {new Date().getFullYear()} Devbhoomi Trips</p>
+        <p>© {new Date().getFullYear()} Northern Harrier</p>
       </div>
     </footer>
   );

@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { Card, Badge, Alert, Spinner, PageHeader, Button, inr } from '../components/ui';
 import {
   FiCheckCircle, FiClock, FiXCircle, FiTag, FiCreditCard, FiChevronRight, FiShoppingBag,
+  FiDownload,
 } from 'react-icons/fi';
 
 // order.status -> badge look + icon
@@ -23,6 +24,33 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  // id of the order whose receipt is currently downloading
+  const [downloading, setDownloading] = useState(null);
+
+  // fetch the PDF as a blob (the auth header goes along via the api instance),
+  // then trigger a "save as" through a temporary object URL
+  const downloadReceipt = async (orderId, receiptNo) => {
+    setError('');
+    setDownloading(orderId);
+    try {
+      const res = await api.get(`/orders/${orderId}/receipt`, { responseType: 'blob' });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${receiptNo || orderId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      // error responses also arrive as blobs — decode to show the real message
+      let message = 'Could not download the receipt';
+      try {
+        message = JSON.parse(await err.response.data.text()).error || message;
+      } catch { /* keep fallback */ }
+      setError(message);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   useEffect(() => {
     api.get('/orders')
@@ -112,6 +140,21 @@ export default function MyOrders() {
                     {coupon.discountType === 'percentage'
                       ? ` (${Number(coupon.discountValue)}% off)`
                       : ` (${inr(coupon.discountValue)} off)`}
+                  </div>
+                )}
+
+                {/* receipt download — paid orders only */}
+                {o.status === 'paid' && (
+                  <div className="border-t border-slate-100 px-4 py-3">
+                    <Button
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                      onClick={() => downloadReceipt(o.id, o.razorpay_order_id)}
+                      disabled={downloading === o.id}
+                    >
+                      <FiDownload />
+                      {downloading === o.id ? 'Preparing…' : 'Download receipt'}
+                    </Button>
                   </div>
                 )}
               </Card>

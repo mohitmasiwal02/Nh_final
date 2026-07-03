@@ -5,7 +5,7 @@ import { Button } from './ui';
 import {
   FiMenu, FiX, FiUser, FiLogOut, FiMap, FiShoppingBag, FiSettings, FiLogIn,
 } from 'react-icons/fi';
-import { FaMountainSun } from 'react-icons/fa6';
+import Logo from './Logo';
 
 export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
@@ -38,9 +38,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/90 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 text-lg font-bold text-slate-900" onClick={closeDrawer}>
-          <FaMountainSun className="text-2xl text-brand-600" />
-          <span>Devbhoomi <span className="text-brand-600">Trips</span></span>
+        <Link to="/" onClick={closeDrawer}>
+          <Logo />
         </Link>
 
         {/* desktop */}
