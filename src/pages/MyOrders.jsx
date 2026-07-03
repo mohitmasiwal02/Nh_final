@@ -62,6 +62,19 @@ export default function MyOrders() {
   if (loading) return <Spinner label="Loading your trips…" />;
   if (error) return <Alert type="error">{error}</Alert>;
 
+
+
+  const cancelTrip = async (orderId) => {
+    setError('');
+    try {
+      await api.get(`/refundOrder/${orderId}`);
+      console.log('Trip cancelled successfully');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to cancel the trip');
+    }
+  };
+
+
   return (
     <div>
       <PageHeader title="My Trips" subtitle="All your bookings in one place." />
@@ -79,8 +92,8 @@ export default function MyOrders() {
             const pkg = o.Package || o.Packages || {};
             const coupon = o.Coupon;
             const payment = o.Payment;
-            const status = STATUS[o.status] || STATUS.pending;
-            const StatusIcon = status.icon;
+            const status = o.status 
+            const StatusIcon = status;
 
             return (
               <Card key={o.id} className="overflow-hidden">
@@ -98,9 +111,10 @@ export default function MyOrders() {
                       Booked on {formatDate(o.createdAt || o.created_at)} · #{(o.razorpay_order_id || o.id).slice(-8)}
                     </p>
                   </div>
-                  <Badge className={status.cls}>
-                    <StatusIcon /> {status.label}
+                  <Badge className={"bg-green-100 text-green-800"}  >
+                    <StatusIcon /> {status }
                   </Badge>
+                
                 </div>
 
                 {/* amount breakdown */}
@@ -155,6 +169,8 @@ export default function MyOrders() {
                       <FiDownload />
                       {downloading === o.id ? 'Preparing…' : 'Download receipt'}
                     </Button>
+
+                    <Button onClick={() => cancelTrip(o.id)}>Cancel Trip</Button>
                   </div>
                 )}
               </Card>
