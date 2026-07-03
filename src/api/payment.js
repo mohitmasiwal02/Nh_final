@@ -1,7 +1,7 @@
 import api from './axios';
 import { loadRazorpay } from '../lib/razorpay';
  
-export async function bookPackage({ user, packageId, couponCode }) {
+export async function bookPackage({ user, packageId, couponCode, bookingDate}) {
   const sdkLoaded = await loadRazorpay();
   if (!sdkLoaded) {
     throw new Error('Could not load the payment gateway. Check your connection and try again.');
@@ -10,7 +10,7 @@ export async function bookPackage({ user, packageId, couponCode }) {
   // 1. create the order on our backend — user_id is taken from the JWT server-side
   const { data: order } = await api.post('/orders/create', {
     package_id: packageId,
-  
+    bookingDate: bookingDate,
     ...(couponCode ? { coupon_code: couponCode } : {}),
   });
 

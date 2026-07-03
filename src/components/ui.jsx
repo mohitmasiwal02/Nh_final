@@ -18,7 +18,7 @@ export function Button({ as: Comp = 'button', variant = 'primary', className = '
 
 // ---- Card -----------------------------------------------------------------
 export function Card({ className = '', ...props }) {
-  return <div className={`bg-white rounded-2xl shadow-sm ring-1 ring-slate-100 ${className}`} {...props} />;
+  return <div className={`bg-white rounded-2xl border border-slate-400 shadow-sm ring-1 ring-slate-100 ${className}`} {...props} />;
 }
 
 // ---- Page header ----------------------------------------------------------

@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { Card, Badge, Alert, Spinner, PageHeader, Button, inr } from '../components/ui';
 import {
   FiCheckCircle, FiClock, FiXCircle, FiTag, FiCreditCard, FiChevronRight, FiShoppingBag,
-  FiDownload,
+  FiDownload, FiCalendar,
 } from 'react-icons/fi';
 
 // order.status -> badge look + icon
@@ -19,6 +19,23 @@ const paise = (n) => inr(Number(n || 0) / 100);
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+// days between today and the trip date, counting only whole calendar days
+const daysUntil = (d) => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(d);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target - start) / 86400000);
+};
+
+// short human label for the countdown pill
+const countdownLabel = (days) => {
+  if (days > 1) return `${days} days left`;
+  if (days === 1) return 'Tomorrow';
+  if (days === 0) return 'Today';
+  return 'Trip completed';
+};
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -92,13 +109,13 @@ export default function MyOrders() {
             const pkg = o.Package || o.Packages || {};
             const coupon = o.Coupon;
             const payment = o.Payment;
-            const status = o.status 
-            const StatusIcon = status;
+            const statusInfo = STATUS[o.status] || STATUS.pending;
+            const StatusIcon = statusInfo.icon;
 
             return (
-              <Card key={o.id} className="overflow-hidden">
-                {/* header row: package + status */}
-                <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <Card key={o.id} className="overflow-hidden ring-1 ring-slate-100">
+                {/* header: package title + status — stays side-by-side even on mobile */}
+                <div className="flex items-start justify-between gap-3 bg-linear-to-r from-brand-50/60 to-slate-50 p-4">
                   <div className="min-w-0">
                     <Link
                       to={pkg.id ? `/packages/${pkg.id}` : '#'}
@@ -108,58 +125,71 @@ export default function MyOrders() {
                       {pkg.id && <FiChevronRight className="shrink-0 opacity-0 transition group-hover:opacity-100" />}
                     </Link>
                     <p className="mt-0.5 text-xs text-slate-400">
-                      Booked on {formatDate(o.createdAt || o.created_at)} · #{(o.razorpay_order_id || o.id).slice(-8)}
+                      #{(o.razorpay_order_id || o.id).slice(-8)} · booked {formatDate(o.createdAt || o.created_at)}
                     </p>
                   </div>
-                  <Badge className={"bg-green-100 text-green-800"}  >
-                    <StatusIcon /> {status }
+                  <Badge className={`shrink-0 ${statusInfo.cls}`}>
+                    <StatusIcon /> {statusInfo.label}
                   </Badge>
-                
                 </div>
 
-                {/* amount breakdown */}
-                <div className="grid grid-cols-2 gap-3 p-4 text-sm sm:grid-cols-4">
-                  <div>
-                    <p className="text-xs text-slate-400">Package price</p>
-                    <p className="font-medium text-slate-700">{paise(o.original_amount)}</p>
+                {/* booking date banner */}
+                {o.bookingDate && (() => {
+                  const days = daysUntil(o.bookingDate);
+                  const upcoming = days >= 0;
+                  return (
+                    <div className="flex items-center gap-2.5 border-t border-amber-100 bg-amber-50 px-4 py-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                        <FiCalendar />
+                      </span>
+                      <div className="min-w-0 text-sm leading-tight">
+                        <p className="font-semibold text-amber-900">Trip date · {formatDate(o.bookingDate)}</p>
+                        <p className="text-xs text-amber-700/90">
+                          {upcoming ? 'Please reach the venue on time 🙂' : 'Hope you had a great trip! 🎉'}
+                        </p>
+                      </div>
+                      <span
+                        className={`ml-auto shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          upcoming ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'
+                        }`}
+                      >
+                        {countdownLabel(days)}
+                      </span>
+                    </div>
+                  );
+                })()}
+
+                {/* price summary — itemised rows read cleanly on narrow screens */}
+                <div className="space-y-2 p-4 text-sm">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span>Package price</span>
+                    <span className="font-medium text-slate-700">{paise(o.original_amount)}</span>
                   </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Discount</p>
-                    <p className={`font-medium ${Number(o.discount_amount) > 0 ? 'text-emerald-600' : 'text-slate-700'}`}>
-                      −{paise(o.discount_amount)}
+                  {Number(o.discount_amount) > 0 && (
+                    <div className="flex items-center justify-between text-slate-500">
+                      <span className="inline-flex items-center gap-1">
+                        <FiTag className="text-emerald-500" />
+                        Discount
+                        {coupon && <span className="font-semibold text-emerald-600">· {coupon.code}</span>}
+                      </span>
+                      <span className="font-medium text-emerald-600">−{paise(o.discount_amount)}</span>
+                    </div>
+                  )}
+                  <div className="mt-1 flex items-center justify-between border-t border-dashed border-slate-200 pt-2.5">
+                    <span className="font-semibold text-slate-900">Amount paid</span>
+                    <span className="text-base font-bold text-slate-900">{paise(o.amount)}</span>
+                  </div>
+                  {payment?.razorpay_payment_id && (
+                    <p className="flex items-center gap-1.5 truncate pt-1 text-xs text-slate-400">
+                      <FiCreditCard className="shrink-0" />
+                      <span className="truncate">Paid via {payment.razorpay_payment_id}</span>
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Amount paid</p>
-                    <p className="font-bold text-slate-900">{paise(o.amount)}</p>
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <p className="text-xs text-slate-400">Payment</p>
-                    {payment?.razorpay_payment_id ? (
-                      <p className="flex items-center gap-1 truncate font-medium text-slate-700">
-                        <FiCreditCard className="shrink-0 text-brand-600" />
-                        <span className="truncate">{payment.razorpay_payment_id}</span>
-                      </p>
-                    ) : (
-                      <p className="text-slate-400">—</p>
-                    )}
-                  </div>
+                  )}
                 </div>
 
-                {/* coupon strip */}
-                {coupon && (
-                  <div className="flex items-center gap-2 border-t border-dashed border-slate-100 bg-emerald-50/50 px-4 py-2 text-xs text-emerald-700">
-                    <FiTag />
-                    Coupon <span className="font-bold">{coupon.code}</span> applied
-                    {coupon.discountType === 'percentage'
-                      ? ` (${Number(coupon.discountValue)}% off)`
-                      : ` (${inr(coupon.discountValue)} off)`}
-                  </div>
-                )}
-
-                {/* receipt download — paid orders only */}
+                {/* receipt / cancel — paid orders only */}
                 {o.status === 'paid' && (
-                  <div className="border-t border-slate-100 px-4 py-3">
+                  <div className="flex flex-col gap-2 border-t border-slate-100 bg-slate-50/60 px-4 py-3 sm:flex-row sm:justify-end">
                     <Button
                       variant="secondary"
                       className="w-full sm:w-auto"
@@ -170,7 +200,9 @@ export default function MyOrders() {
                       {downloading === o.id ? 'Preparing…' : 'Download receipt'}
                     </Button>
 
-                    <Button onClick={() => cancelTrip(o.id)}>Cancel Trip</Button>
+                    <Button variant="danger" className="w-full sm:w-auto" onClick={() => cancelTrip(o.id)}>
+                      Cancel Trip
+                    </Button>
                   </div>
                 )}
               </Card>

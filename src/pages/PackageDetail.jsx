@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { bookPackage } from '../api/payment';
 import { useAuth } from '../hooks/useAuth';
-import { Card, Button, Input, Badge, Alert, Spinner, inr, MOUNTAIN_IMG } from '../components/ui';
+import { Card, Button, Input, Label, Badge, Alert, Spinner, inr, MOUNTAIN_IMG } from '../components/ui';
 import { FiClock, FiStar, FiChevronRight, FiTag, FiCheckCircle } from 'react-icons/fi';
 import { FaHotel, FaUtensils } from 'react-icons/fa6';
 
@@ -23,6 +23,7 @@ export default function PackageDetail() {
   const [paying, setPaying] = useState(false);
   const [bookError, setBookError] = useState('');
   const [bookSuccess, setBookSuccess] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
 
   useEffect(() => {
     api.get(`/packages/${id}`)
@@ -48,6 +49,11 @@ export default function PackageDetail() {
       return;
     }
 
+    if (!bookingDate) {
+      setBookError('Please select a booking date.');
+      return;
+    }
+
     setBookError('');
     setBookSuccess('');
     setPaying(true);
@@ -55,8 +61,8 @@ export default function PackageDetail() {
       const result = await bookPackage({
         user,
         packageId: id,
-        // only pass a coupon that was successfully applied above
         couponCode: couponResult?.code,
+        bookingDate
       });
       setBookSuccess(`Payment successful! Your booking is confirmed (order ${result.order_id}).`);
     } catch (err) {
@@ -165,8 +171,23 @@ export default function PackageDetail() {
               </p>
             )}
 
+            <div className="mt-4">
+              <Label>Booking date</Label>
+              <Input
+                type="date"
+                className="mt-1"
+                value={bookingDate}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setBookingDate(e.target.value)}
+              />
+            </div>
+
             {/* desktop book button — mobile uses the sticky bottom bar */}
-            <Button className="mt-4 hidden w-full lg:flex" onClick={handleBook} disabled={paying}>
+            <Button
+              className="mt-4 hidden w-full lg:flex"
+              onClick={handleBook}
+              disabled={paying || (!!user && !bookingDate)}
+            >
               {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
             </Button>
 
@@ -216,7 +237,11 @@ export default function PackageDetail() {
               per person{couponResult ? ` · ${couponResult.code} applied` : ''}
             </p>
           </div>
-          <Button className="flex-1 max-w-52" onClick={handleBook} disabled={paying}>
+          <Button
+            className="flex-1 max-w-52"
+            onClick={handleBook}
+            disabled={paying || (!!user && !bookingDate)}
+          >
             {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
           </Button>
         </div>
