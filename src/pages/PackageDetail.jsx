@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { bookPackage } from '../api/payment';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Card, Button, Input, Badge, Alert, Spinner, inr, MOUNTAIN_IMG } from '../components/ui';
 import { FiClock, FiStar, FiChevronRight, FiTag, FiCheckCircle } from 'react-icons/fi';
 import { FaHotel, FaUtensils } from 'react-icons/fa6';
