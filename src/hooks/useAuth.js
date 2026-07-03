@@ -27,10 +27,16 @@ export function useAuth() {
     return persistSession(data);
   };
 
+  // credential is the Google ID token from @react-oauth/google
+  const loginWithGoogle = async (credential) => {
+    const { data } = await api.post('/auth/google', { credential });
+    return persistSession(data);
+  };
+
   const logout = () => {
     clearAuthStorage();
     dispatch(clearCredentials());
   };
 
-  return { user, isAdmin, login, register, logout };
+  return { user, isAdmin, login, register, loginWithGoogle, logout };
 }

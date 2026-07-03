@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Card, Button, Input, Label, Alert } from '../components/ui';
+import GoogleLoginButton from '../components/GoogleLoginButton';
 
 export default function Login() {
   const { login } = useAuth();
@@ -55,6 +56,16 @@ export default function Login() {
             {loading ? 'Logging in…' : 'Login'}
           </Button>
         </form>
+
+        <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
+          <div className="h-px flex-1 bg-slate-200" />
+          or
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLoginButton onError={setError} />
+        </div>
 
         <p className="mt-4 text-center text-sm text-slate-500">
           New here?{' '}
