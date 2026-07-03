@@ -88,6 +88,7 @@ export default function Packages() {
                 placeholder="Search trips… e.g. Kedarnath"
                 className="w-full bg-transparent py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
               />
+              
             </div>
 
             {/* small muted search-result summary under the search bar */}
@@ -100,12 +101,16 @@ export default function Packages() {
             )}
           </div>
         </div>
+      
       </section>
 
       {/* ---- popular destinations: featured packages, horizontal scroll on mobile ---- */}
       {destinations.length > 0 && (
       <section className="mb-8 sm:mb-10">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="mb-3 text-lg font-bold text-slate-900 sm:text-xl">Popular destinations</h2>
+          <button onClick={()=>setQuery("")} className="text-sm font-medium text-brand-600 hover:underline">Show All Packages</button>
+      </div>
         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {destinations.map((d) => (
             <button
