@@ -36,7 +36,7 @@ export default function Login() {
       </div>
 
       <Card className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <Label>Email</Label>
             <Input
@@ -55,22 +55,22 @@ export default function Login() {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Logging in…' : 'Login'}
           </Button>
-        </form>
+        </form> */}
 
-        <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
+        {/* <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
           <div className="h-px flex-1 bg-slate-200" />
           or
           <div className="h-px flex-1 bg-slate-200" />
-        </div>
+        </div> */}
 
         <div className="flex justify-center">
           <GoogleLoginButton onError={setError} />
         </div>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        {/* <p className="mt-4 text-center text-sm text-slate-500">
           New here?{' '}
           <Link to="/register" className="font-medium text-brand-600 hover:underline">Create an account</Link>
-        </p>
+        </p> */}
       </Card>
     </div>
   );

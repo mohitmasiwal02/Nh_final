@@ -1,12 +1,6 @@
 import api from './axios';
 import { loadRazorpay } from '../lib/razorpay';
-
-// Full Razorpay booking flow:
-//   1. ask the backend to create an order (returns amount, order id and key_id)
-//   2. open the Razorpay checkout with that order
-//   3. verify the signature server-side once the user pays
-//
-// Resolves with the verify response on success, rejects with an Error otherwise.
+ 
 export async function bookPackage({ user, packageId, couponCode }) {
   const sdkLoaded = await loadRazorpay();
   if (!sdkLoaded) {
@@ -16,7 +10,7 @@ export async function bookPackage({ user, packageId, couponCode }) {
   // 1. create the order on our backend — user_id is taken from the JWT server-side
   const { data: order } = await api.post('/orders/create', {
     package_id: packageId,
-    // only send a coupon if one was actually applied
+  
     ...(couponCode ? { coupon_code: couponCode } : {}),
   });
 
@@ -34,7 +28,7 @@ export async function bookPackage({ user, packageId, couponCode }) {
         email: user.email || '',
         contact: user.phone || '',
       },
-      theme: { color: '#0284c7' },
+      theme: { color: '#000000' },
       // 3. verify the payment signature on our backend
       handler: async (response) => {
         try {
@@ -44,6 +38,7 @@ export async function bookPackage({ user, packageId, couponCode }) {
             razorpay_signature: response.razorpay_signature,
           });
           resolve(data);
+          navigate('/orders');
         } catch (err) {
           reject(new Error(err.response?.data?.error || 'Payment verification failed'));
         }

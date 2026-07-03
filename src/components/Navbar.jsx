@@ -10,8 +10,8 @@ import Logo from './Logo';
 export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-
+  const [open, setOpen] = useState(false); 
+   const [openProfile, setOpenProfile] = useState(false); 
   // lock body scroll while the mobile drawer is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -58,12 +58,16 @@ export default function Navbar() {
             </NavLink>
           )}
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-600">
-                <FiUser className="text-brand-600" />
+            <div className="flex items-center gap-3 relative cursor-pointer">
+              <span onClick={() => setOpenProfile(!openProfile)} className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-600">
+                <img src={user.picture} alt={user.picture} className="h-6 w-6 rounded-full" />
                 {user.name}
               </span>
-              <Button variant="secondary" onClick={handleLogout}><FiLogOut /> Logout</Button>
+              {openProfile && (
+                <div className="absolute right-0 top-10   ">
+                  <Button variant="secondary" onClick={handleLogout}><FiLogOut /> Logout</Button>
+                </div>
+              )}
             </div>
           ) : (
             <Button as={Link} to="/login"><FiLogIn /> Login</Button>
@@ -91,7 +95,7 @@ export default function Navbar() {
             {user ? (
               <div className="mb-2 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-lg font-bold text-white">
-                  {(user.name || 'U').charAt(0).toUpperCase()}
+                  <img src={user.picture} alt={user.name} className="h-10 w-10 rounded-full" />
                 </span>
                 <div className="leading-tight">
                   <p className="font-semibold text-slate-900">{user.name}</p>

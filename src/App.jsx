@@ -38,20 +38,48 @@ export default function App() {
   );
 }
 
-function Footer() {
+ function Footer() {
   return (
-    <footer className="border-t border-slate-100 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:px-6">
-        <div className="flex flex-col items-center gap-1 sm:items-start">
-          <Logo size="text-base" icon="text-xl" />
-          <p className="text-xs text-slate-400">Uttarakhand tour packages, stay &amp; meals included.</p>
+    <footer className="border-t border-slate-100 bg-gradient-to-b from-white to-slate-50">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+          {/* Features */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-slate-500">
+
+            <div className="flex items-center gap-2 justify-center sm:justify-start bg-white px-3 py-2 rounded-lg border border-slate-100 shadow-sm">
+              <FiShield className="text-slate-600" />
+              <span>Secure payments</span>
+            </div>
+
+            <div className="flex items-center gap-2 justify-center sm:justify-start bg-white px-3 py-2 rounded-lg border border-slate-100 shadow-sm">
+              <FiPhone className="text-slate-600" />
+              <span>24×7 support</span>
+            </div>
+
+            <div className="flex items-center gap-2 justify-center sm:justify-start bg-white px-3 py-2 rounded-lg border border-slate-100 shadow-sm">
+              <FiMail className="text-slate-600" />
+              <span>hello@northernharrier.in</span>
+            </div>
+
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-400">
-          <span className="inline-flex items-center gap-1"><FiShield /> Secure payments</span>
-          <span className="inline-flex items-center gap-1"><FiPhone /> 24×7 support</span>
-          <span className="inline-flex items-center gap-1"><FiMail /> hello@northernharrier.in</span>
+
+        {/* Bottom bar */}
+        <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 pt-5">
+
+          <p className="text-xs text-slate-400 text-center sm:text-left">
+            © {new Date().getFullYear()} Northern Harrier. All rights reserved.
+          </p>
+
+          <div className="flex gap-4 justify-center sm:justify-end text-xs text-slate-400">
+            <a href="#" className="hover:text-slate-600 transition">Privacy Policy</a>
+            <a href="#" className="hover:text-slate-600 transition">Terms</a>
+            <a href="#" className="hover:text-slate-600 transition">Contact</a>
+          </div>
+
         </div>
-        <p>© {new Date().getFullYear()} Northern Harrier</p>
+
       </div>
     </footer>
   );
