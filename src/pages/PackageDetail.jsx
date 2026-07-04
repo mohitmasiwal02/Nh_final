@@ -119,7 +119,7 @@ export default function PackageDetail() {
     <div className="pb-24 lg:pb-0">
       {/* breadcrumb */}
       <nav className="mb-4 flex items-center text-sm text-slate-500">
-        <Link to="/" className="hover:text-brand-700">Packages</Link>
+        <Link to="/" className="hover:text-[#D84E55]">Packages</Link>
         <FiChevronRight className="mx-1 text-slate-300" />
         <span className="line-clamp-1 text-slate-700">{pkg.title}</span>
       </nav>
@@ -156,12 +156,11 @@ export default function PackageDetail() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{pkg.title}</h1>
 
-          {/* <h2 className="mb-5 mt-8 text-lg font-semibold text-slate-900">Itinerary</h2> */}
-          <ol className="relative space-y-7 border-l border-slate-200 pl-7">
+          <ol className="relative mt-6 space-y-6 border-l border-slate-200 pl-7">
             {(pkg.itinerary || []).map((day, i) => (
               <li key={i} className="relative">
                 {/* numbered timeline node */}
-                <span className="absolute -left-10.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white ring-4 ring-white">
+                <span className="absolute -left-10.5 flex h-7 w-7 items-center justify-center rounded-full bg-[#D84E55] text-xs font-bold text-white ring-4 ring-white">
                   {i + 1}
                 </span>
                 <p className="font-semibold text-slate-900">{day.title}</p>
@@ -172,7 +171,7 @@ export default function PackageDetail() {
                   <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                     {day.activities.map((a, j) => (
                       <li key={j} className="flex gap-2.5">
-                        <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
+                        <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-[#D84E55]/70" />
                         {a}
                       </li>
                     ))}
@@ -250,7 +249,7 @@ export default function PackageDetail() {
 
             {/* desktop book button — mobile uses the sticky bottom bar */}
             <Button
-              className="mt-4 hidden w-full lg:flex"
+              className="mt-4 hidden w-full bg-[#D84E55]! hover:bg-[#c0434a]! lg:flex"
               onClick={handleBook}
               disabled={paying}
             >
@@ -263,7 +262,7 @@ export default function PackageDetail() {
             {/* coupon apply — requires login */}
             <div className="mt-5 border-t border-slate-100 pt-5">
               <h3 className="mb-2 flex items-center gap-2 font-semibold text-slate-900">
-                <FiTag className="text-brand-600" /> Have a coupon?
+                <FiTag className="text-[#D84E55]" /> Have a coupon?
               </h3>
               {user ? (
                 <>
@@ -286,7 +285,7 @@ export default function PackageDetail() {
                 </>
               ) : (
                 <p className="text-sm text-slate-500">
-                  <Link to="/login" className="font-medium text-brand-600 hover:underline">Log in</Link> to apply a coupon.
+                  <Link to="/login" className="font-medium text-[#D84E55] hover:underline">Log in</Link> to apply a coupon.
                 </p>
               )}
             </div>
@@ -304,7 +303,7 @@ export default function PackageDetail() {
             </p>
           </div>
           <Button
-            className="flex-1 max-w-52"
+            className="flex-1 max-w-52 bg-[#D84E55]! hover:bg-[#c0434a]!"
             onClick={handleBook}
             disabled={paying}
           >
