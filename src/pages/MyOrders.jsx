@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import { retryPayment } from '../api/payment';
+import { useAuth } from '../hooks/useAuth';
 import { Card, Badge, Alert, Spinner, PageHeader, Button, inr } from '../components/ui';
 import {
   FiCheckCircle, FiClock, FiXCircle, FiTag, FiCreditCard, FiChevronRight, FiShoppingBag,
@@ -39,11 +41,14 @@ const countdownLabel = (days) => {
 };
 
 export default function MyOrders() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   // id of the order whose receipt is currently downloading
   const [downloading, setDownloading] = useState(null);
+  // id of the order currently being (re)paid
+  const [paying, setPaying] = useState(null);
 
   // fetch the PDF as a blob (the auth header goes along via the api instance),
   // then trigger a "save as" through a temporary object URL
@@ -82,6 +87,25 @@ export default function MyOrders() {
 
 
 
+  // retry an existing pending/failed order — reuses the same Order row server-side
+  const payNow = async (orderId) => {
+    setError('');
+    setPaying(orderId);
+    try {
+      await retryPayment({ user, orderId });
+      // refresh so the just-paid order flips to "Confirmed"
+      const res = await api.get('/orders');
+      setOrders(res.data.orders || []);
+    } catch (err) {
+      // ignore the "cancelled" case — the user simply closed the popup
+      if (err.message !== 'Payment cancelled') {
+        setError(err.message || 'Payment could not be completed');
+      }
+    } finally {
+      setPaying(null);
+    }
+  };
+
   const cancelTrip = async (orderId) => {
     setError('');
     try {
@@ -113,7 +137,15 @@ export default function MyOrders() {
             const StatusIcon = statusInfo.icon;
 
             return (
-              <Card key={o.id} className="overflow-hidden ring-1 ring-slate-100">
+              <Card key={o.id} className="relative overflow-hidden ring-1 ring-slate-100">
+                {/* rubber-stamp for cancelled/refunded trips */}
+                {o.status === 'refunded' && (
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                    <div className="-rotate-12 select-none rounded-md border-4 border-rose-500/60 px-3 py-1 text-base font-extrabold uppercase tracking-widest text-rose-500/70 sm:text-lg">
+                      Trip Cancelled
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-3 bg-linear-to-r from-brand-50/60 to-slate-50 p-4">
                   <div className="min-w-0">
                     <Link
@@ -132,7 +164,7 @@ export default function MyOrders() {
                   </Badge>
                 </div>
               
-                {o.bookingDate && (() => {
+                {o.status === 'paid' && o.bookingDate && (() => {
                   const days = daysUntil(o.bookingDate);
                   const upcoming = days >= 0;
                   return (
@@ -200,6 +232,25 @@ export default function MyOrders() {
 
                     <Button variant="danger" className="w-full sm:w-auto" onClick={() => cancelTrip(o.id)}>
                       Cancel Trip
+                    </Button>
+                  </div>
+                )}
+
+                {/* pending / failed — let the user complete the payment */}
+                {(o.status === 'pending' || o.status === 'failed') && (
+                  <div className="flex flex-col gap-2 border-t border-slate-100 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs text-slate-500">
+                      {o.status === 'failed'
+                        ? 'Payment failed — you can try again.'
+                        : 'Payment pending — complete it to confirm your trip.'}
+                    </p>
+                    <Button
+                      className="w-full sm:w-auto"
+                      onClick={() => payNow(o.id)}
+                      disabled={paying === o.id}
+                    >
+                      <FiCreditCard />
+                      {paying === o.id ? 'Processing…' : 'Pay now'}
                     </Button>
                   </div>
                 )}

@@ -1,20 +1,9 @@
 import api from './axios';
 import { loadRazorpay } from '../lib/razorpay';
- 
-export async function bookPackage({ user, packageId, couponCode, bookingDate}) {
-  const sdkLoaded = await loadRazorpay();
-  if (!sdkLoaded) {
-    throw new Error('Could not load the payment gateway. Check your connection and try again.');
-  }
 
-  // 1. create the order on our backend — user_id is taken from the JWT server-side
-  const { data: order } = await api.post('/orders/create', {
-    package_id: packageId,
-    bookingDate: bookingDate,
-    ...(couponCode ? { coupon_code: couponCode } : {}),
-  });
-
-  // 2. hand off to Razorpay checkout, wrapped in a promise so callers can await it
+// Open the Razorpay checkout for an already-created order and verify it on success.
+// `order` is the backend response from /orders/create or /orders/:id/retry.
+function openCheckout(order, user) {
   return new Promise((resolve, reject) => {
     const rzp = new window.Razorpay({
       key: order.key_id,
@@ -29,7 +18,7 @@ export async function bookPackage({ user, packageId, couponCode, bookingDate}) {
         contact: user.phone || '',
       },
       theme: { color: '#000000' },
-      // 3. verify the payment signature on our backend
+      // verify the payment signature on our backend
       handler: async (response) => {
         try {
           const { data } = await api.post('/orders/verify', {
@@ -38,7 +27,6 @@ export async function bookPackage({ user, packageId, couponCode, bookingDate}) {
             razorpay_signature: response.razorpay_signature,
           });
           resolve(data);
-          navigate('/orders');
         } catch (err) {
           reject(new Error(err.response?.data?.error || 'Payment verification failed'));
         }
@@ -56,4 +44,34 @@ export async function bookPackage({ user, packageId, couponCode, bookingDate}) {
 
     rzp.open();
   });
+}
+
+async function ensureSdk() {
+  const sdkLoaded = await loadRazorpay();
+  if (!sdkLoaded) {
+    throw new Error('Could not load the payment gateway. Check your connection and try again.');
+  }
+}
+
+export async function bookPackage({ user, packageId, couponCode, bookingDate }) {
+  await ensureSdk();
+
+  // create the order on our backend — user_id is taken from the JWT server-side
+  const { data: order } = await api.post('/orders/create', {
+    package_id: packageId,
+    bookingDate: bookingDate,
+    ...(couponCode ? { coupon_code: couponCode } : {}),
+  });
+
+  return openCheckout(order, user);
+}
+
+// Retry payment for an existing pending/failed order — the backend re-issues a
+// Razorpay order on the SAME Order row, so no duplicate booking is created.
+export async function retryPayment({ user, orderId }) {
+  await ensureSdk();
+
+  const { data: order } = await api.post(`/orders/${orderId}/retry`);
+
+  return openCheckout(order, user);
 }
