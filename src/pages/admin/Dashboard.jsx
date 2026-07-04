@@ -4,6 +4,7 @@ import { Card, PageHeader } from '../../components/ui';
 const tiles = [
   { to: '/admin/packages', icon: '📦', title: 'Manage Packages', desc: 'Create, edit and delete tour packages.' },
   { to: '/admin/coupons', icon: '🎟️', title: 'Manage Coupons', desc: 'Create and delete discount coupons.' },
+  { to: '/admin/gallery', icon: '🖼️', title: 'Manage Gallery', desc: 'Create and remove photo catalogs.' },
 ];
 
 export default function Dashboard() {

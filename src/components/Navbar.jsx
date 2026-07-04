@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui';
 import {
-  FiMenu, FiX, FiUser, FiLogOut, FiMap, FiShoppingBag, FiSettings, FiLogIn,
+  FiMenu, FiX, FiUser, FiLogOut, FiMap, FiShoppingBag, FiSettings, FiLogIn, FiImage,
 } from 'react-icons/fi';
 import Logo from './Logo';
 
@@ -46,6 +46,9 @@ export default function Navbar() {
         <div className="hidden items-center gap-6 md:flex">
           <NavLink to="/" className={navLinkClass} end>
             <span className="inline-flex items-center gap-1.5"><FiMap /> Packages</span>
+          </NavLink>
+          <NavLink to="/gallery" className={navLinkClass}>
+            <span className="inline-flex items-center gap-1.5"><FiImage /> Gallery</span>
           </NavLink>
           {user && (
             <NavLink to="/orders" className={navLinkClass}>
@@ -111,6 +114,9 @@ export default function Navbar() {
             <div className="flex flex-col gap-1">
               <NavLink to="/" className={drawerLinkClass} end onClick={closeDrawer}>
                 <FiMap className="text-lg" /> Packages
+              </NavLink>
+              <NavLink to="/gallery" className={drawerLinkClass} onClick={closeDrawer}>
+                <FiImage className="text-lg" /> Gallery
               </NavLink>
               {user && (
                 <NavLink to="/orders" className={drawerLinkClass} onClick={closeDrawer}>

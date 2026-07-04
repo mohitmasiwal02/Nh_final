@@ -8,11 +8,13 @@ const CATEGORIES = ['wildlife', 'wellness', 'home', 'adventure', 'spirituality',
 
 const emptyForm = { title: '', from: '', to: '', price: '', discountedPrice: '', category: '', featured: false };
 const newDay = (day) => ({ day, title: '', description: '', activities: [''] });
+const newBox = () => ({ heading: '', subheading: '', description: '' });
 
 export default function ManagePackages() {
   const [packages, setPackages] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [itinerary, setItinerary] = useState([newDay(1)]);
+  const [extraBoxes, setExtraBoxes] = useState([newBox()]);
   const [files, setFiles] = useState([]);
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
@@ -71,9 +73,28 @@ export default function ManagePackages() {
       activities: d.activities.map((a) => a.trim()).filter(Boolean),
     }));
 
+  // --- extra info boxes helpers (heading / subheading / description, repeatable) ---
+  const updateBox = (i, key, value) =>
+    setExtraBoxes(extraBoxes.map((b, idx) => (idx === i ? { ...b, [key]: value } : b)));
+
+  const addBox = () => setExtraBoxes([...extraBoxes, newBox()]);
+
+  const removeBox = (i) => setExtraBoxes(extraBoxes.filter((_, idx) => idx !== i));
+
+  // drop fully-empty boxes before sending
+  const buildExtraData = () =>
+    extraBoxes
+      .map((b) => ({
+        heading: b.heading.trim(),
+        subheading: b.subheading.trim(),
+        description: b.description.trim(),
+      }))
+      .filter((b) => b.heading || b.subheading || b.description);
+
   const resetForm = () => {
     setForm(emptyForm);
     setItinerary([newDay(1)]);
+    setExtraBoxes([newBox()]);
     setFiles([]);
     setEditingId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -102,6 +123,15 @@ export default function ManagePackages() {
           }))
         : [newDay(1)]
     );
+    setExtraBoxes(
+      Array.isArray(pkg.extraData) && pkg.extraData.length
+        ? pkg.extraData.map((b) => ({
+            heading: b.heading || '',
+            subheading: b.subheading || '',
+            description: b.description || '',
+          }))
+        : [newBox()]
+    );
     setFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -121,6 +151,7 @@ export default function ManagePackages() {
       if (form.discountedPrice) fd.append('discountedPrice', form.discountedPrice);
       if (form.category) fd.append('category', form.category);
       fd.append('itinerary', JSON.stringify(buildItinerary())); // always [{day,title,description,activities[]}]
+      fd.append('extraData', JSON.stringify(buildExtraData())); // [{heading,subheading,description}]
       files.forEach((f) => fd.append('coverImage', f));
 
       if (editingId) {
@@ -267,6 +298,32 @@ export default function ManagePackages() {
                     + Add activity
                   </button>
                 </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Extra info boxes</Label>
+              <button type="button" onClick={addBox} className="text-sm font-medium text-brand-600 hover:underline">
+                + Add box
+              </button>
+            </div>
+
+            {extraBoxes.map((b, i) => (
+              <div key={i} className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">Box {i + 1}</span>
+                  {extraBoxes.length > 1 && (
+                    <button type="button" onClick={() => removeBox(i)} className="text-xs font-medium text-rose-600 hover:underline">
+                      - Remove box
+                    </button>
+                  )}
+                </div>
+
+                <Input value={b.heading} onChange={(e) => updateBox(i, 'heading', e.target.value)} placeholder="Heading" />
+                <Input value={b.subheading} onChange={(e) => updateBox(i, 'subheading', e.target.value)} placeholder="Subheading (optional)" />
+                <Textarea value={b.description} onChange={(e) => updateBox(i, 'description', e.target.value)} placeholder="Description" rows={2} />
               </div>
             ))}
           </div>

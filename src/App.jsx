@@ -3,12 +3,14 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
+import Gallery from './pages/Gallery';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MyOrders from './pages/MyOrders';
 import Dashboard from './pages/admin/Dashboard';
 import ManagePackages from './pages/admin/ManagePackages';
 import ManageCoupons from './pages/admin/ManageCoupons';
+import ManageGallery from './pages/admin/ManageGallery';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Logo from './components/Logo';
 import { FiShield, FiPhone, FiMail } from 'react-icons/fi';
@@ -31,6 +33,7 @@ export default function App() {
           {/* public */}
           <Route path="/" element={<Packages />} />
           <Route path="/packages/:id" element={<PackageDetail />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -41,6 +44,7 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/packages" element={<ProtectedRoute adminOnly><ManagePackages /></ProtectedRoute>} />
           <Route path="/admin/coupons" element={<ProtectedRoute adminOnly><ManageCoupons /></ProtectedRoute>} />
+          <Route path="/admin/gallery" element={<ProtectedRoute adminOnly><ManageGallery /></ProtectedRoute>} />
         </Routes>
       </main>
       <Footer />

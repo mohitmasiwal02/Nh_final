@@ -180,6 +180,20 @@ export default function PackageDetail() {
               </li>
             ))}
           </ol>
+
+          {Array.isArray(pkg.extraData) && pkg.extraData.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {pkg.extraData.map((box, i) => (
+                <Card key={i} className="p-4">
+                  {box.heading && <h3 className="font-semibold text-slate-900">{box.heading}</h3>}
+                  {box.subheading && <p className="mt-0.5 text-sm font-medium text-brand-600">{box.subheading}</p>}
+                  {box.description && (
+                    <p className="mt-2 text-sm leading-relaxed text-slate-500">{box.description}</p>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* right: booking panel (sticky sidebar on desktop) */}
