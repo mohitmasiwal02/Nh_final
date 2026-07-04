@@ -5,7 +5,7 @@ import api from '../api/axios';
 import { bookPackage } from '../api/payment';
 import { useAuth } from '../hooks/useAuth';
 import { Card, Button, Input, Label, Badge, Alert, Spinner, inr, MOUNTAIN_IMG } from '../components/ui';
-import { FiClock, FiStar, FiChevronRight, FiTag, FiCheckCircle } from 'react-icons/fi';
+import { FiClock, FiStar, FiChevronRight, FiTag } from 'react-icons/fi';
 import { FaHotel, FaUtensils } from 'react-icons/fa6';
 
 export default function PackageDetail() {
@@ -156,23 +156,24 @@ export default function PackageDetail() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{pkg.title}</h1>
 
-          <h2 className="mb-3 mt-8 text-lg font-semibold text-slate-900">Itinerary</h2>
-          <ol className="space-y-4">
+          {/* <h2 className="mb-5 mt-8 text-lg font-semibold text-slate-900">Itinerary</h2> */}
+          <ol className="relative space-y-7 border-l border-slate-200 pl-7">
             {(pkg.itinerary || []).map((day, i) => (
-              <li key={i} className="relative rounded-xl border border-slate-100 bg-white p-4 pl-5 shadow-sm">
-                <span className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-brand-500" />
-                <p className="font-semibold text-slate-900">
-                  {/* <span className="mr-2 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">
-                    Day {day.day}
-                  </span> */}
-                  {day.title}
-                </p>
-                {day.description && <p className="mt-1 text-sm text-slate-600">{day.description}</p>}
+              <li key={i} className="relative">
+                {/* numbered timeline node */}
+                <span className="absolute -left-10.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white ring-4 ring-white">
+                  {i + 1}
+                </span>
+                <p className="font-semibold text-slate-900">{day.title}</p>
+                {day.description && (
+                  <p className="mt-1 text-sm leading-relaxed text-slate-500">{day.description}</p>
+                )}
                 {day.activities?.length > 0 && (
-                  <ul className="mt-2 space-y-1 text-sm text-slate-500">
+                  <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                     {day.activities.map((a, j) => (
-                      <li key={j} className="flex gap-2">
-                        <FiCheckCircle className="mt-0.5 shrink-0 text-brand-500" /> {a}
+                      <li key={j} className="flex gap-2.5">
+                        <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
+                        {a}
                       </li>
                     ))}
                   </ul>
