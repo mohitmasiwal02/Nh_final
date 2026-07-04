@@ -22,11 +22,15 @@ const FEATURES = [
   { icon: FiCreditCard, title: 'Coupons & offers', text: 'Save more on every trip' },
 ];
 
+// category tabs — 'home' shows every package, the rest filter by package.category
+const CATEGORIES = ['home', 'wildlife', 'wellness', 'adventure', 'spirituality', 'leisure'];
+
 export default function Packages() {
   const [packages, setPackages] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('home');
 
   useEffect(() => {
     api.get('/packages')
@@ -37,11 +41,13 @@ export default function Packages() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return packages;
-    return packages.filter(
-      (p) => p.title?.toLowerCase().includes(q) || p.to?.toLowerCase().includes(q)
-    );
-  }, [packages, query]);
+    return packages.filter((p) => {
+      const matchesQuery =
+        !q || p.title?.toLowerCase().includes(q) || p.to?.toLowerCase().includes(q);
+      const matchesCategory = category === 'home' || p.category === category;
+      return matchesQuery && matchesCategory;
+    });
+  }, [packages, query, category]);
 
   const featured = filtered.filter((p) => p.featured);
   const rest = filtered.filter((p) => !p.featured);
@@ -139,6 +145,25 @@ export default function Packages() {
         </div>
       </section>
       )}
+
+      {/* ---- category tabs (round pills) — 'Home' shows all packages ---- */}
+      <section className="mb-8 sm:mb-10">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium capitalize transition ${
+                category === c
+                  ? 'bg-brand-600 text-white shadow'
+                  : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* ---- featured packages ---- */}
       {!loading && !error && featured.length > 0 && (

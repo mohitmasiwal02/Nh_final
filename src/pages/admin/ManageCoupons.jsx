@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { Card, PageHeader, Button, Input, Select, Label, Badge, Alert } from '../../components/ui';
 
-const emptyForm = { code: '', discountType: 'percentage', discountValue: '', scope: 'all', validTo: '' };
+const emptyForm = {
+  code: '', discountType: 'percentage', discountValue: '', scope: 'all', validTo: '',
+  isPerPerson: false, firstTimeUserOnly: false,
+};
 
 export default function ManageCoupons() {
   const [coupons, setCoupons] = useState([]);
@@ -19,6 +22,7 @@ export default function ManageCoupons() {
   useEffect(() => { load(); }, []);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const onCheckboxChange = (e) => setForm({ ...form, [e.target.name]: e.target.checked });
 
   const create = async (e) => {
     e.preventDefault();
@@ -30,6 +34,8 @@ export default function ManageCoupons() {
         discountValue: Number(form.discountValue),
         scope: form.scope,
         validTo: form.validTo || null,
+        isPerPerson: form.isPerPerson,
+        firstTimeUserOnly: form.firstTimeUserOnly,
       };
       if (form.scope === 'specific') body.packageIds = packageIds;
 
@@ -97,6 +103,31 @@ export default function ManageCoupons() {
             </div>
           </div>
 
+          <div className="flex flex-wrap gap-4">
+            {form.discountType === 'flat' && (
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  name="isPerPerson"
+                  className="accent-brand-600"
+                  checked={form.isPerPerson}
+                  onChange={onCheckboxChange}
+                />
+                Apply flat amount per person (instead of once per booking)
+              </label>
+            )}
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                name="firstTimeUserOnly"
+                className="accent-brand-600"
+                checked={form.firstTimeUserOnly}
+                onChange={onCheckboxChange}
+              />
+              First-time users only
+            </label>
+          </div>
+
           {form.scope === 'specific' && (
             <div className="rounded-xl border border-slate-200 p-3">
               <p className="mb-2 text-sm font-medium text-slate-700">Select packages</p>
@@ -127,6 +158,8 @@ export default function ManageCoupons() {
                 <p className="flex items-center gap-2 font-medium text-slate-900">
                   {c.code}
                   <Badge className="bg-slate-100 text-slate-500">{c.scope}</Badge>
+                  {c.isPerPerson && <Badge className="bg-slate-100 text-slate-500">per person</Badge>}
+                  {c.firstTimeUserOnly && <Badge className="bg-slate-100 text-slate-500">first-time only</Badge>}
                 </p>
                 <p className="text-sm text-slate-500">
                   {c.discountType === 'percentage' ? `${c.discountValue}% off` : `₹${c.discountValue} off`}

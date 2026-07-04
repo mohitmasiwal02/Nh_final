@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import api from '../../api/axios';
-import { Card, PageHeader, Button, Input, Textarea, Label, Alert, Badge, inr, MOUNTAIN_IMG } from '../../components/ui';
+import { Card, PageHeader, Button, Input, Textarea, Select, Label, Alert, Badge, inr, MOUNTAIN_IMG } from '../../components/ui';
 import { FiEye, FiEyeOff, FiEdit2, FiX, FiStar } from 'react-icons/fi';
 
-const emptyForm = { title: '', from: '', to: '', price: '', discountedPrice: '', featured: false };
+// package categories offered on the public site
+const CATEGORIES = ['wildlife', 'wellness', 'home', 'adventure', 'spirituality', 'leisure'];
+
+const emptyForm = { title: '', from: '', to: '', price: '', discountedPrice: '', category: '', featured: false };
 const newDay = (day) => ({ day, title: '', description: '', activities: [''] });
 
 export default function ManagePackages() {
@@ -86,6 +89,7 @@ export default function ManagePackages() {
       to: pkg.to || '',
       price: pkg.price ?? '',
       discountedPrice: pkg.discountedPrice ?? '',
+      category: pkg.category || '',
       featured: !!pkg.featured,
     });
     setItinerary(
@@ -115,6 +119,7 @@ export default function ManagePackages() {
       fd.append('featured', form.featured);
       fd.append('price', form.price);
       if (form.discountedPrice) fd.append('discountedPrice', form.discountedPrice);
+      if (form.category) fd.append('category', form.category);
       fd.append('itinerary', JSON.stringify(buildItinerary())); // always [{day,title,description,activities[]}]
       files.forEach((f) => fd.append('coverImage', f));
 
@@ -201,6 +206,18 @@ export default function ManagePackages() {
               <Label>Discounted price (₹)</Label>
               <Input name="discountedPrice" value={form.discountedPrice} onChange={onChange} placeholder="Optional" type="number" />
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Category</Label>
+            <Select name="category" value={form.category} onChange={onChange}>
+              <option value="">Select a category</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c.charAt(0).toUpperCase() + c.slice(1)}
+                </option>
+              ))}
+            </Select>
           </div>
 
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700">

@@ -42,7 +42,8 @@ export default function PackageDetail() {
     setCouponError('');
     setCouponResult(null);
     try {
-      const { data } = await api.post('/coupons/apply', { code, packageId: id });
+      const count = Math.max(1, parseInt(persons, 10) || 1);
+      const { data } = await api.post('/coupons/apply', { code, packageId: id, persons: count });
       setCouponResult(data);
       toast.success(`Coupon ${data.code} applied!`);
     } catch (err) {
@@ -109,8 +110,8 @@ export default function PackageDetail() {
   // per-head base price, then everything scales with the number of persons.
   const perPerson = Number(hasDiscount ? pkg.discountedPrice : pkg.price);
   const subtotal = perPerson * personsCount;
-  // coupon is validated per person by the API; scale it to the head count.
-  const couponDiscount = couponResult ? Number(couponResult.discount) * personsCount : 0;
+  // discount is already computed for the whole group (persons was sent to the API)
+  const couponDiscount = couponResult ? Number(couponResult.discount) : 0;
   const payAmount = subtotal - couponDiscount;
 
   return (
@@ -217,7 +218,12 @@ export default function PackageDetail() {
                   onChange={(e) => {
                     const v = e.target.value;
                     // allow clearing the field; accept only whole numbers
-                    if (v === '' || /^\d+$/.test(v)) setPersons(v);
+                    if (v === '' || /^\d+$/.test(v)) {
+                      setPersons(v);
+                      // discount was computed for the old headcount — make them re-apply
+                      setCouponResult(null);
+                      setCouponError('');
+                    }
                   }}
                 />
               </div>
