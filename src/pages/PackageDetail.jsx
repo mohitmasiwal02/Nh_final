@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { bookPackage } from '../api/payment';
 import { useAuth } from '../hooks/useAuth';
@@ -24,6 +25,8 @@ export default function PackageDetail() {
   const [bookError, setBookError] = useState('');
   const [bookSuccess, setBookSuccess] = useState('');
   const [bookingDate, setBookingDate] = useState('');
+  // raw input value — may be '' while editing; effective count defaults to 1
+  const [persons, setPersons] = useState('1');
 
   useEffect(() => {
     api.get(`/packages/${id}`)
@@ -32,27 +35,38 @@ export default function PackageDetail() {
   }, [id]);
 
   const applyCoupon = async () => {
+    if (!code.trim()) {
+      toast.error('Enter a coupon code first.');
+      return;
+    }
     setCouponError('');
     setCouponResult(null);
     try {
       const { data } = await api.post('/coupons/apply', { code, packageId: id });
       setCouponResult(data);
+      toast.success(`Coupon ${data.code} applied!`);
     } catch (err) {
-      setCouponError(err.response?.data?.error || 'Could not apply coupon');
+      const msg = err.response?.data?.error || 'Could not apply coupon';
+      setCouponError(msg);
+      toast.error(msg);
     }
   };
 
   const handleBook = async () => {
     // must be logged in to pay — send guests to login first
     if (!user) {
+      toast.error('Please log in to book this trip.');
       navigate('/login');
       return;
     }
 
     if (!bookingDate) {
-      setBookError('Please select a booking date.');
+      toast.error('Please select a date to confirm your booking.');
       return;
     }
+
+    // empty / invalid input falls back to 1 person
+    const count = Math.max(1, parseInt(persons, 10) || 1);
 
     setBookError('');
     setBookSuccess('');
@@ -62,13 +76,20 @@ export default function PackageDetail() {
         user,
         packageId: id,
         couponCode: couponResult?.code,
-        bookingDate
+        bookingDate,
+        persons: count,
       });
-      setBookSuccess(`Payment successful! Your booking is confirmed (order ${result.order_id}).`);
+      const msg = `Booking confirmed for ${count} ${count > 1 ? 'persons' : 'person'} (order ${result.order_id}).`;
+      setBookSuccess(msg);
+      toast.success(msg);
     } catch (err) {
       // ignore the "cancelled" case — the user simply closed the popup
       if (err.message !== 'Payment cancelled') {
-        setBookError(err.message || 'Payment could not be completed');
+        const msg = err.message || 'Payment could not be completed';
+        setBookError(msg);
+        toast.error(msg);
+      } else {
+        toast('Payment cancelled.', { icon: '⚠️' });
       }
     } finally {
       setPaying(false);
@@ -82,9 +103,15 @@ export default function PackageDetail() {
   const hasDiscount = pkg.discountedPrice != null && Number(pkg.discountedPrice) < Number(pkg.price);
   // Always show at least one on-theme mountain shot if the trip has no photos.
   const images = pkg.coverImage?.length ? pkg.coverImage : [MOUNTAIN_IMG];
-  const payAmount = couponResult
-    ? couponResult.finalPrice
-    : hasDiscount ? pkg.discountedPrice : pkg.price;
+
+  // empty field -> book for 1 person by default (but keep the input clearable)
+  const personsCount = Math.max(1, parseInt(persons, 10) || 1);
+  // per-head base price, then everything scales with the number of persons.
+  const perPerson = Number(hasDiscount ? pkg.discountedPrice : pkg.price);
+  const subtotal = perPerson * personsCount;
+  // coupon is validated per person by the API; scale it to the head count.
+  const couponDiscount = couponResult ? Number(couponResult.discount) * personsCount : 0;
+  const payAmount = subtotal - couponDiscount;
 
   return (
     // extra bottom padding on mobile so the sticky book bar never covers content
@@ -159,34 +186,66 @@ export default function PackageDetail() {
           <Card className="p-5 lg:sticky lg:top-24">
             <div className="flex items-end gap-2">
               <span className="text-3xl font-bold text-slate-900">
-                {inr(hasDiscount ? pkg.discountedPrice : pkg.price)}
+                {inr(perPerson)}
               </span>
               {hasDiscount && <span className="pb-1 text-slate-400 line-through">{inr(pkg.price)}</span>}
             </div>
             <p className="text-sm text-slate-400">per person · taxes included</p>
 
-            {couponResult && (
-              <p className="mt-2 text-sm font-medium text-emerald-700">
-                You pay {inr(couponResult.finalPrice)} after coupon {couponResult.code}
-              </p>
-            )}
+            {/* booking date + number of persons */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div>
+                <Label>Booking date</Label>
+                <Input
+                  type="date"
+                  className="mt-1"
+                  value={bookingDate}
+                  min={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setBookingDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Persons</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  step={1}
+                  inputMode="numeric"
+                  placeholder="1"
+                  className="mt-1"
+                  value={persons}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    // allow clearing the field; accept only whole numbers
+                    if (v === '' || /^\d+$/.test(v)) setPersons(v);
+                  }}
+                />
+              </div>
+            </div>
 
-            <div className="mt-4">
-              <Label>Booking date</Label>
-              <Input
-                type="date"
-                className="mt-1"
-                value={bookingDate}
-                min={new Date().toISOString().slice(0, 10)}
-                onChange={(e) => setBookingDate(e.target.value)}
-              />
+            {/* live price breakdown — subtotal, coupon, total */}
+            <div className="mt-4 space-y-1.5 rounded-lg bg-slate-50 p-3 text-sm">
+              <div className="flex justify-between text-slate-500">
+                <span>{inr(perPerson)} × {personsCount} {personsCount > 1 ? 'persons' : 'person'}</span>
+                <span className="font-medium text-slate-700">{inr(subtotal)}</span>
+              </div>
+              {couponResult && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Coupon {couponResult.code}</span>
+                  <span>−{inr(couponDiscount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-slate-200 pt-1.5 text-base font-bold text-slate-900">
+                <span>Total</span>
+                <span>{inr(payAmount)}</span>
+              </div>
             </div>
 
             {/* desktop book button — mobile uses the sticky bottom bar */}
             <Button
               className="mt-4 hidden w-full lg:flex"
               onClick={handleBook}
-              disabled={paying || (!!user && !bookingDate)}
+              disabled={paying}
             >
               {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
             </Button>
@@ -234,13 +293,13 @@ export default function PackageDetail() {
           <div className="leading-tight">
             <p className="text-lg font-bold text-slate-900">{inr(payAmount)}</p>
             <p className="text-xs text-slate-400">
-              per person{couponResult ? ` · ${couponResult.code} applied` : ''}
+              {personsCount} {personsCount > 1 ? 'persons' : 'person'}{couponResult ? ` · ${couponResult.code} applied` : ''}
             </p>
           </div>
           <Button
             className="flex-1 max-w-52"
             onClick={handleBook}
-            disabled={paying || (!!user && !bookingDate)}
+            disabled={paying}
           >
             {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
           </Button>

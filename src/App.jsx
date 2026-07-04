@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
@@ -15,6 +16,15 @@ import { FiShield, FiPhone, FiMail } from 'react-icons/fi';
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: { borderRadius: '0.75rem', fontSize: '0.875rem' },
+          success: { iconTheme: { primary: '#059669', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#e11d48', secondary: '#fff' } },
+        }}
+      />
       <Navbar />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         <Routes>

@@ -53,13 +53,14 @@ async function ensureSdk() {
   }
 }
 
-export async function bookPackage({ user, packageId, couponCode, bookingDate }) {
+export async function bookPackage({ user, packageId, couponCode, bookingDate, persons = 1 }) {
   await ensureSdk();
 
   // create the order on our backend — user_id is taken from the JWT server-side
   const { data: order } = await api.post('/orders/create', {
     package_id: packageId,
     bookingDate: bookingDate,
+    persons,
     ...(couponCode ? { coupon_code: couponCode } : {}),
   });
 

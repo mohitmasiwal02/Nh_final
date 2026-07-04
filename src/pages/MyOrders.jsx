@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { retryPayment } from '../api/payment';
 import { useAuth } from '../hooks/useAuth';
 import { Card, Badge, Alert, Spinner, PageHeader, Button, inr } from '../components/ui';
 import {
   FiCheckCircle, FiClock, FiXCircle, FiTag, FiCreditCard, FiChevronRight, FiShoppingBag,
-  FiDownload, FiCalendar,
+  FiDownload, FiCalendar, FiUsers, FiRotateCcw,
 } from 'react-icons/fi';
 
 // order.status -> badge look + icon
@@ -70,6 +71,7 @@ export default function MyOrders() {
         message = JSON.parse(await err.response.data.text()).error || message;
       } catch { /* keep fallback */ }
       setError(message);
+      toast.error(message);
     } finally {
       setDownloading(null);
     }
@@ -96,10 +98,15 @@ export default function MyOrders() {
       // refresh so the just-paid order flips to "Confirmed"
       const res = await api.get('/orders');
       setOrders(res.data.orders || []);
+      toast.success('Payment successful — your trip is confirmed!');
     } catch (err) {
       // ignore the "cancelled" case — the user simply closed the popup
       if (err.message !== 'Payment cancelled') {
-        setError(err.message || 'Payment could not be completed');
+        const msg = err.message || 'Payment could not be completed';
+        setError(msg);
+        toast.error(msg);
+      } else {
+        toast('Payment cancelled.', { icon: '⚠️' });
       }
     } finally {
       setPaying(null);
@@ -110,9 +117,14 @@ export default function MyOrders() {
     setError('');
     try {
       await api.get(`/refundOrder/${orderId}`);
-      console.log('Trip cancelled successfully');
+      // refresh so the "Trip Cancelled" stamp shows
+      const res = await api.get('/orders');
+      setOrders(res.data.orders || []);
+      toast.success('Trip cancelled and refund initiated.');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to cancel the trip');
+      const msg = err.response?.data?.error || 'Failed to cancel the trip';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -192,7 +204,12 @@ export default function MyOrders() {
                 {/* price summary — itemised rows read cleanly on narrow screens */}
                 <div className="space-y-2 p-4 text-sm">
                   <div className="flex items-center justify-between text-slate-500">
-                    <span>Package price</span>
+                    <span className="inline-flex items-center gap-1">
+                      <FiUsers className="text-slate-400" />
+                      {o.persons > 1
+                        ? `${paise(o.original_amount / o.persons)} × ${o.persons} persons`
+                        : 'Package price'}
+                    </span>
                     <span className="font-medium text-slate-700">{paise(o.original_amount)}</span>
                   </div>
                   {Number(o.discount_amount) > 0 && (
@@ -214,6 +231,18 @@ export default function MyOrders() {
                       <FiCreditCard className="shrink-0" />
                       <span className="truncate">Paid via {payment.razorpay_payment_id}</span>
                     </p>
+                  )}
+                  {payment?.refund_amount > 0 && (
+                    <div className="mt-1 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">
+                      <span className="inline-flex items-center gap-1.5 font-medium">
+                        <FiRotateCcw className="shrink-0" />
+                        Refunded
+                        {payment.refunded_at && (
+                          <span className="font-normal text-emerald-600/80">on {formatDate(payment.refunded_at)}</span>
+                        )}
+                      </span>
+                      <span className="font-bold">{paise(payment.refund_amount)}</span>
+                    </div>
                   )}
                 </div>
 
