@@ -235,17 +235,17 @@ export default function ManagePackages() {
             <div className="flex items-center justify-between">
               <Label>Itinerary</Label>
               <button type="button" onClick={addDay} className="text-sm font-medium text-brand-600 hover:underline">
-                + Add day
+                + Add heading
               </button>
             </div>
 
             {itinerary.map((d, i) => (
               <div key={i} className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <div className="flex items-center justify-between">
-                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">Day {d.day}</span>
+                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">Heading {i + 1}</span>
                   {itinerary.length > 1 && (
                     <button type="button" onClick={() => removeDay(i)} className="text-xs font-medium text-rose-600 hover:underline">
-                      Remove day
+                    - Remove heading
                     </button>
                   )}
                 </div>

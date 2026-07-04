@@ -162,9 +162,9 @@ export default function PackageDetail() {
               <li key={i} className="relative rounded-xl border border-slate-100 bg-white p-4 pl-5 shadow-sm">
                 <span className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-brand-500" />
                 <p className="font-semibold text-slate-900">
-                  <span className="mr-2 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">
+                  {/* <span className="mr-2 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">
                     Day {day.day}
-                  </span>
+                  </span> */}
                   {day.title}
                 </p>
                 {day.description && <p className="mt-1 text-sm text-slate-600">{day.description}</p>}
