@@ -12,6 +12,7 @@ const STATUS = {
   paid: { label: 'Confirmed', icon: FiCheckCircle, cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
   pending: { label: 'Pending', icon: FiClock, cls: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
   failed: { label: 'Failed', icon: FiXCircle, cls: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200' },
+  refunded: { label: 'Refunded', icon: FiCheckCircle, cls: 'bg-green-50 text-green-700 ring-1 ring-green-200' },
 };
 
 // backend stores money in paise
@@ -105,7 +106,6 @@ export default function MyOrders() {
       ) : (
         <div className="space-y-4">
           {orders.map((o) => {
-            // association keys as Sequelize serialises them (be tolerant of both forms)
             const pkg = o.Package || o.Packages || {};
             const coupon = o.Coupon;
             const payment = o.Payment;
@@ -114,7 +114,6 @@ export default function MyOrders() {
 
             return (
               <Card key={o.id} className="overflow-hidden ring-1 ring-slate-100">
-                {/* header: package title + status — stays side-by-side even on mobile */}
                 <div className="flex items-start justify-between gap-3 bg-linear-to-r from-brand-50/60 to-slate-50 p-4">
                   <div className="min-w-0">
                     <Link
@@ -132,8 +131,7 @@ export default function MyOrders() {
                     <StatusIcon /> {statusInfo.label}
                   </Badge>
                 </div>
-
-                {/* booking date banner */}
+              
                 {o.bookingDate && (() => {
                   const days = daysUntil(o.bookingDate);
                   const upcoming = days >= 0;

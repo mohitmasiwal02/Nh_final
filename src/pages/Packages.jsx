@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/axios';
 import PackageCard from '../components/PackageCard';
+import OffersMarquee from '../components/OffersMarquee';
 import { Alert, Spinner, MOUNTAIN_IMG } from '../components/ui';
 import {
   FiSearch, FiShield, FiHeadphones, FiCreditCard, FiStar,
@@ -103,6 +104,9 @@ export default function Packages() {
         </div>
       
       </section>
+
+      {/* ---- offers marquee (redBus-style square coupon tiles) ---- */}
+      <OffersMarquee />
 
       {/* ---- popular destinations: featured packages, horizontal scroll on mobile ---- */}
       {destinations.length > 0 && (

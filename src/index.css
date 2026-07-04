@@ -22,6 +22,20 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Continuous horizontal marquee (offers strip). Track is duplicated in JSX,
+   so travelling -50% lands on the copy for a seamless loop. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
 body {
   @apply bg-slate-50 text-slate-800 antialiased;
   font-family: var(--font-sans);

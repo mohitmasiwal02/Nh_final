@@ -8,7 +8,7 @@ import { store } from './store/store';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+ 
     <BrowserRouter>
       <Provider store={store}>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
@@ -16,5 +16,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </GoogleOAuthProvider>
       </Provider>
     </BrowserRouter>
-  </React.StrictMode>
+ 
 );
