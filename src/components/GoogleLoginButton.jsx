@@ -10,7 +10,7 @@ export default function GoogleLoginButton({ onError }) {
   const handleSuccess = async (credentialResponse) => {
     const credential = credentialResponse?.credential;
     if (!credential) {
-      onError?.('Google did not return a valid token.');
+      onError?.('Google did not  return a valid token.');
       return;
     }
     try {
