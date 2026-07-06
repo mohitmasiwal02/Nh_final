@@ -6,7 +6,7 @@ import { FiEye, FiEyeOff, FiEdit2, FiX, FiStar } from 'react-icons/fi';
 // package categories offered on the public site
 const CATEGORIES = ['wildlife', 'wellness', 'home', 'adventure', 'spirituality', 'leisure'];
 
-const emptyForm = { title: '', from: '', to: '', price: '', discountedPrice: '', category: '', featured: false };
+const emptyForm = { title: '', from: '', to: '', price: '', discountedPrice: '', category: '', featured: false , pricepercouple: false};
 const newDay = (day) => ({ day, title: '', description: '', activities: [''] });
 const newBox = () => ({ heading: '', subheading: '', description: '' });
 
@@ -150,6 +150,7 @@ export default function ManagePackages() {
       fd.append('to', form.to);
       fd.append('featured', form.featured);
       fd.append('price', form.price);
+      fd.append('iscouple', form.pricepercouple);
       if (form.discountedPrice) fd.append('discountedPrice', form.discountedPrice);
       if (form.category) fd.append('category', form.category);
       fd.append('itinerary', JSON.stringify(buildItinerary())); // always [{day,title,description,activities[]}]
@@ -240,6 +241,10 @@ export default function ManagePackages() {
             <div className="space-y-1">
               <Label>Discounted price (₹)</Label>
               <Input name="discountedPrice" value={form.discountedPrice} onChange={onChange} placeholder="Optional" type="number" />
+            </div>
+              <div className="space-y-1">
+              <Label> Price per couple </Label>
+              <Input className='' name="pricepercouple" value={form.pricepercouple} onChange={onChange} placeholder="Optional" type="checkbox" />
             </div>
           </div>
 

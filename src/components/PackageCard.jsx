@@ -87,7 +87,7 @@ export default function PackageCard({ pkg }) {
                   {inr(pkg.price)}
                 </span>
               )}
-              <p className="text-xs text-slate-400">per person</p>
+              <p className="text-xs text-slate-400"> {pkg.iscouple ? 'per couple' : 'per person'}</p>
             </div>
             <span className="inline-flex items-center gap-1 rounded-lg bg-[#D84E55]/10 px-2.5 py-1 text-sm font-semibold text-[#D84E55] transition group-hover:bg-[#D84E55] group-hover:text-white">
               View <FiArrowRight />

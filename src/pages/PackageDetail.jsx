@@ -211,7 +211,7 @@ export default function PackageDetail() {
               </span>
               {hasDiscount && <span className="pb-1 text-slate-400 line-through">{inr(pkg.price)}</span>}
             </div>
-            <p className="text-sm text-slate-400">per person · taxes included</p>
+            <p className="text-sm text-slate-400"> {pkg.iscouple ? 'per couple' : 'per person'} · taxes included</p>
 
             {/* booking date + number of persons */}
             <div className="mt-4 grid grid-cols-2 gap-3">
