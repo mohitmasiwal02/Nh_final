@@ -62,63 +62,17 @@ export default function Packages() {
 
   return (
     <div>
-      {/* ---- hero with looping video ---- */}
-      <section className="relative mb-6 overflow-hidden rounded-3xl sm:mb-10">
-        <video
-          className="h-[26rem] w-full object-cover sm:h-96"
-          src={HERO_VIDEO}
-          poster={HERO_POSTER}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/45 to-slate-900/20 sm:bg-gradient-to-r sm:from-slate-900/85 sm:via-slate-900/55 sm:to-transparent" />
-        <div className="absolute inset-0 flex flex-col justify-end px-5 pb-8 sm:justify-center sm:px-10 sm:pb-0">
-          <div className="max-w-xl text-white">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-200 sm:text-sm">
-              <FaMountainSun /> Uttarakhand · Himalayas
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
-              Your mountain escape, fully sorted
-            </h1>
-            <p className="mt-2 text-sm text-slate-200 sm:mt-3 sm:text-base">
-              Stay, meals &amp; travel included in every package. Just pack your bags and go.
-            </p>
-
-            {/* search — full-width tap-friendly on mobile */}
-            <div className="mt-4 flex items-center gap-2 rounded-full bg-white p-1.5 pl-4 shadow-lg sm:mt-6 sm:max-w-md">
-              <FiSearch className="shrink-0 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search trips… e.g. Kedarnath"
-                className="w-full bg-transparent py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
-              />
-              
-            </div>
-
-            {/* small muted search-result summary under the search bar */}
-            {!loading && !error && query.trim() && (
-              <p className="mt-2 text-xs text-slate-300 sm:max-w-md">
-                {filtered.length > 0
-                  ? `Showing ${filtered.length} result${filtered.length > 1 ? 's' : ''} for “${query.trim()}”`
-                  : `No results for “${query.trim()}”`}
-              </p>
-            )}
-          </div>
-        </div>
-      
-      </section>
-
-      {/* ---- offers marquee (redBus-style square coupon tiles) ---- */}
+ 
+  
+         {/* ---- offers marquee (redBus-style square coupon tiles) ---- */}
       <OffersMarquee />
+ 
 
       {/* ---- popular destinations: featured packages, horizontal scroll on mobile ---- */}
       {destinations.length > 0 && (
       <section className="mb-8 sm:mb-10">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="mb-3 text-lg font-bold text-slate-900 sm:text-xl">Popular destinations</h2>
+        <h2 className=" text-lg font-bold text-slate-900 sm:text-xl">Popular destinations</h2>
           <button onClick={()=>setQuery("")} className="text-sm font-medium text-brand-600 hover:underline">Show All Packages</button>
       </div>
         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -145,6 +99,8 @@ export default function Packages() {
         </div>
       </section>
       )}
+
+      
 
       {/* ---- category tabs (round pills) — 'Home' shows all packages ---- */}
       <section className="mb-8 sm:mb-10">
@@ -177,26 +133,9 @@ export default function Packages() {
           </div>
         </section>
       )}
+  
 
-      {/* ---- why book with us ---- */}
-      {!loading && !error && (
-        <section className="mb-8 rounded-3xl bg-linear-to-br from-brand-50 to-emerald-50 p-5 ring-1 ring-brand-100 sm:mb-12 sm:p-8">
-          <h2 className="mb-5 text-lg font-bold text-slate-900 sm:text-xl">Why book with us</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, text }) => (
-              <div key={title} className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-brand-600 shadow-sm ring-1 ring-brand-100">
-                  <Icon />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{title}</p>
-                  <p className="text-xs text-slate-500">{text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+  
 
       {/* ---- all packages (heading + grid together) ---- */}
       <section>
@@ -230,6 +169,27 @@ export default function Packages() {
           </div>
         )}
       </section>
+
+
+          {/* ---- why book with us ---- */}
+      {!loading && !error && (
+        <section className="mb-8 mt-10 rounded-3xl bg-linear-to-br from-brand-50 to-emerald-50 p-5 ring-1 ring-brand-100 sm:mb-12 sm:p-8">
+          <h2 className="mb-5 text-lg font-bold text-slate-900 sm:text-xl">Why book with us</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {FEATURES.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-brand-600 shadow-sm ring-1 ring-brand-100">
+                  <Icon />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{title}</p>
+                  <p className="text-xs text-slate-500">{text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

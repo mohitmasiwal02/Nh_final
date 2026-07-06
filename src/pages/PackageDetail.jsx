@@ -188,7 +188,7 @@ export default function PackageDetail() {
           </ol>
 
           {Array.isArray(pkg.extraData) && pkg.extraData.length > 0 && (
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 border-amber-400">
               {pkg.extraData.map((box, i) => (
                 <Card key={i} className="p-4">
                   {box.heading && <h3 className="font-semibold text-slate-900">{box.heading}</h3>}
