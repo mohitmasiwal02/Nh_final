@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
 import Gallery from './pages/Gallery';
+import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MyOrders from './pages/MyOrders';
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/" element={<Packages />} />
           <Route path="/packages/:id" element={<PackageDetail />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 

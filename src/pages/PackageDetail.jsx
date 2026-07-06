@@ -19,6 +19,7 @@ export default function PackageDetail() {
   const [code, setCode] = useState('');
   const [couponResult, setCouponResult] = useState(null);
   const [couponError, setCouponError] = useState('');
+  const [applying, setApplying] = useState(false);
 
   // booking / payment state
   const [paying, setPaying] = useState(false);
@@ -41,6 +42,7 @@ export default function PackageDetail() {
     }
     setCouponError('');
     setCouponResult(null);
+    setApplying(true);
     try {
       const count = Math.max(1, parseInt(persons, 10) || 1);
       const { data } = await api.post('/coupons/apply', { code, packageId: id, persons: count });
@@ -50,6 +52,8 @@ export default function PackageDetail() {
       const msg = err.response?.data?.error || 'Could not apply coupon';
       setCouponError(msg);
       toast.error(msg);
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -83,6 +87,8 @@ export default function PackageDetail() {
       const msg = `Booking confirmed for ${count} ${count > 1 ? 'persons' : 'person'} (order ${result.order_id}).`;
       setBookSuccess(msg);
       toast.success(msg);
+      // payment confirmed — take the user to their trips
+      navigate('/orders');
     } catch (err) {
       // ignore the "cancelled" case — the user simply closed the popup
       if (err.message !== 'Payment cancelled') {
@@ -265,7 +271,7 @@ export default function PackageDetail() {
             <Button
               className="mt-4 hidden w-full bg-[#D84E55]! hover:bg-[#c0434a]! lg:flex"
               onClick={handleBook}
-              disabled={paying}
+              loading={paying}
             >
               {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
             </Button>
@@ -286,7 +292,7 @@ export default function PackageDetail() {
                       onChange={(e) => setCode(e.target.value)}
                       placeholder="Enter code"
                     />
-                    <Button variant="secondary" onClick={applyCoupon}>Apply</Button>
+                    <Button variant="secondary" onClick={applyCoupon} loading={applying}>Apply</Button>
                   </div>
                   {couponError && <div className="mt-2"><Alert type="error">{couponError}</Alert></div>}
                   {couponResult && (
@@ -319,7 +325,7 @@ export default function PackageDetail() {
           <Button
             className="flex-1 max-w-52 bg-[#D84E55]! hover:bg-[#c0434a]!"
             onClick={handleBook}
-            disabled={paying}
+            loading={paying}
           >
             {paying ? 'Processing…' : user ? 'Book this trip' : 'Login to book'}
           </Button>

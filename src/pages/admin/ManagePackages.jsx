@@ -18,6 +18,7 @@ export default function ManagePackages() {
   const [files, setFiles] = useState([]);
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   // id of the package being edited; null = create mode
   const [editingId, setEditingId] = useState(null);
   const formRef = useRef(null);
@@ -140,6 +141,7 @@ export default function ManagePackages() {
   const submit = async (e) => {
     e.preventDefault();
     setMsg(''); setError('');
+    setSubmitting(true);
     try {
       // multipart because of file upload
       const fd = new FormData();
@@ -166,6 +168,8 @@ export default function ManagePackages() {
       load();
     } catch (err) {
       setError(err.response?.data?.error || (editingId ? 'Update failed' : 'Create failed'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -340,9 +344,13 @@ export default function ManagePackages() {
           {msg && <Alert type="success">{msg}</Alert>}
           {error && <Alert type="error">{error}</Alert>}
           <div className="flex gap-2">
-            <Button type="submit">{editingId ? 'Save changes' : 'Create package'}</Button>
+            <Button type="submit" loading={submitting}>
+              {submitting
+                ? (editingId ? 'Saving…' : 'Creating…')
+                : (editingId ? 'Save changes' : 'Create package')}
+            </Button>
             {editingId && (
-              <Button type="button" variant="secondary" onClick={resetForm}>Cancel</Button>
+              <Button type="button" variant="secondary" disabled={submitting} onClick={resetForm}>Cancel</Button>
             )}
           </div>
         </form>

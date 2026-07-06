@@ -2,9 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getStoredUser } from '../lib/tokenStorage';
 
 const initialState = {
-  // user is hydrated from localStorage so a refresh keeps you logged in
   user: getStoredUser(),
-  // access token is kept in Redux only (in-memory); refresh token lives in localStorage
   accessToken: null,
 };
 

@@ -12,8 +12,9 @@ export default function ManageGallery() {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
-
-  // admin sees hidden catalogs too
+  const [edit , setedit] = useState(false);
+  const [editid , seteditid] = useState(null);
+ 
   const load = () => api.get('/gallery?all=true').then((res) => setCatalogs(res.data.catalogs));
   useEffect(() => { load(); }, []);
 
@@ -32,12 +33,21 @@ export default function ManageGallery() {
       if (form.description) fd.append('description', form.description);
       files.forEach((f) => fd.append('images', f));
 
-      await api.post('/gallery', fd);
+      if(edit && editid){
+        await api.put(`/gallery/${editid}`, fd);
+        setMsg('Gallery catalog updated');
+        setedit(false);
+        seteditid(null);
+      }else{
+       await api.post('/gallery', fd);
       setMsg('Gallery catalog created');
       setForm(emptyForm);
       setFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      load();
+    }
+    
+    load();
+      
     } catch (err) {
       setError(err.response?.data?.error || 'Create failed');
     }
@@ -51,6 +61,20 @@ export default function ManageGallery() {
     } catch (err) {
       setError(err.response?.data?.error || 'Delete failed');
     }
+  };
+
+  const handleedit = async (id) => {
+    const catalog = catalogs.find((c) => c.id === id);
+    if (!catalog) return;
+    setForm({ heading: catalog.heading, description: catalog.description || '' });
+    setFiles([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+   setedit(true);
+   seteditid(id);
+
+
+
+    
   };
 
   const toggleActive = async (id) => {
@@ -124,7 +148,10 @@ export default function ManageGallery() {
               </Button>
               <Button variant="ghost" className="text-rose-600 hover:bg-rose-50" onClick={() => remove(c.id)}>
                 Delete
+              </Button> <Button variant="ghost" className="text-rose-600 hover:bg-rose-50" onClick={() => handleedit(c.id)}>
+                Edit
               </Button>
+
             </div>
           </Card>
         ))}

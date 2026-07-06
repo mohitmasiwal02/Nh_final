@@ -50,6 +50,8 @@ export default function MyOrders() {
   const [downloading, setDownloading] = useState(null);
   // id of the order currently being (re)paid
   const [paying, setPaying] = useState(null);
+  // id of the order currently being cancelled
+  const [cancelling, setCancelling] = useState(null);
 
   // fetch the PDF as a blob (the auth header goes along via the api instance),
   // then trigger a "save as" through a temporary object URL
@@ -115,6 +117,7 @@ export default function MyOrders() {
 
   const cancelTrip = async (orderId) => {
     setError('');
+    setCancelling(orderId);
     try {
       await api.get(`/refundOrder/${orderId}`);
       // refresh so the "Trip Cancelled" stamp shows
@@ -125,6 +128,8 @@ export default function MyOrders() {
       const msg = err.response?.data?.error || 'Failed to cancel the trip';
       setError(msg);
       toast.error(msg);
+    } finally {
+      setCancelling(null);
     }
   };
 
@@ -253,14 +258,19 @@ export default function MyOrders() {
                       variant="secondary"
                       className="w-full sm:w-auto"
                       onClick={() => downloadReceipt(o.id, o.razorpay_order_id)}
-                      disabled={downloading === o.id}
+                      loading={downloading === o.id}
                     >
-                      <FiDownload />
+                      {downloading !== o.id && <FiDownload />}
                       {downloading === o.id ? 'Preparing…' : 'Download receipt'}
                     </Button>
 
-                    <Button variant="danger" className="w-full sm:w-auto" onClick={() => cancelTrip(o.id)}>
-                      Cancel Trip
+                    <Button
+                      variant="danger"
+                      className="w-full sm:w-auto"
+                      onClick={() => cancelTrip(o.id)}
+                      loading={cancelling === o.id}
+                    >
+                      {cancelling === o.id ? 'Cancelling…' : 'Cancel Trip'}
                     </Button>
                   </div>
                 )}
@@ -276,9 +286,9 @@ export default function MyOrders() {
                     <Button
                       className="w-full sm:w-auto"
                       onClick={() => payNow(o.id)}
-                      disabled={paying === o.id}
+                      loading={paying === o.id}
                     >
-                      <FiCreditCard />
+                      {paying !== o.id && <FiCreditCard />}
                       {paying === o.id ? 'Processing…' : 'Pay now'}
                     </Button>
                   </div>
