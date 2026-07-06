@@ -15,7 +15,7 @@ export default function ManageGallery() {
   const [edit , setedit] = useState(false);
   const [editid , seteditid] = useState(null);
  
-  const load = () => api.get('/gallery?all=true').then((res) => setCatalogs(res.data.catalogs));
+  const load = () => api.get('/gallery').then((res) => setCatalogs(res.data.catalogs));
   useEffect(() => { load(); }, []);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
